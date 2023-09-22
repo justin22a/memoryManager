@@ -1,0 +1,79 @@
+.TH P2
+.SH Name
+Memory Management in C++
+
+
+.SH Synopsis
+.SS
+void *getBitmap();
+.SS
+unsigned getMemoryLimit();
+.SS
+unsigned getWordSize();
+.SS
+void *getMemoryStart();
+.SS
+~MemoryManager();
+.SS
+void free(void *address);
+.SS
+MemoryManager(unsigned wordSize, std::function<int(int, void *)> allocator);
+.SS
+void initialize(size_t sizeInWords);
+.SS
+void *allocate(size_t sizeInBytes);
+.SS
+void *getList();
+.SS
+void setAllocator(std::function<int(int, void *)> allocator);
+.SS
+void shutdown();
+.SS
+int dumpMemoryMap(char *filename);
+.SS
+valgrind --leak-check=full
+
+
+
+
+
+
+.SH Description
+.SS void *getBitmap();
+This function returns a pointer to “hole” information about memory. The holes will be accounted for in little endian. The array of information about the holes is in hexadecimal.
+
+
+.SS unsigned getMemoryLimit();
+Get memory limit returns the largest possible amount of bytes to be used in the program. The returned value is the word size multiplied by the amount of allocated words.
+.SS unsigned getWordSize();
+Returns the word size in memory.
+.SS void *getMemoryStart();
+Returns the start in memory.
+.SS ~MemoryManager();
+This function uses shutdown().
+.SS void free(void *address);
+The given void pointer is converted into an offset of where the memory starts, and is then “freed” by changing the “hole” boolean to true. This also includes a functionality that combines holes that are adjacent.
+.SS MemoryManager(unsigned wordSize, std::function<int(int, void *)> allocator);
+Inside this constructor key aspects like the vector of nodes, word size, and allocation type are all initialized. The allocation type is defined by a function pointer (will be best fit or worst fit).
+.SS void initialize(size_t sizeInWords);
+The initialize function creates a block of memory that is of chosen size by the user (using the new keyword).
+.SS void *allocate(size_t sizeInBytes);
+Memory will be allocated at a certain offset which is chosen by the allocation type (best fit and worst fit). The way it words is by taking a chunk of a particular hole and creating a new node out of the chunk of memory that is being used.
+.SS void *getList();
+This returns information about holes. The array at the first entry tells the user how many holes there are, and then two entries for each hole. The first entry for each hole is the offset (where it starts in memory) and then the second pertaining to the size of the hole.
+.SS void setAllocator(std::function<int(int, void *)> allocator);
+This sets the allocation type (best fit or worst fit).
+.SS void shutdown();
+Shutdown is called within the destructor, which simply deallocates the memory allocated in initialize, along with clearing the vector characteristic of the Memory Manager class.
+.SS int dumpMemoryMap(char *filename);
+This writes hole information to a file (of choice file name) about the holes in memory using a POSIX call (like open() and close()).
+valgrind --leak-check=full
+This command followed by an executable will show all memory leaks.
+
+
+.SH Testing
+For testing these functions the command tests provided on canvas were used. The output of these functions are correct since the over score was 38/38 when testing. Valgrind was used to check for memory leaks. The command “sudo apt install valgrind” was used. 
+
+
+.SH VideoLink
+.SS https://youtu.be/CxEmSYNgFEU
